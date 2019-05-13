@@ -4,9 +4,20 @@ TRAIN:
   DATASET:
     NAME: JointsDataset
     CONTAINS:
-      RHD2D:
-        ROOT: data/RHD/cropped/training/    
-        DATA_JSON_PATH: data/RHD/cropped/training/cropped_anno.pickle
+      STB:
+        ROOT: data/STB/2dcrop
+        DATA_JSON_PATH: data/STB/labels
+        PICK:
+          - B2Counting
+          - B3Counting
+          - B4Counting
+          - B5Counting
+          - B6Counting
+          - B2Random
+          - B3Random
+          - B4Random
+          - B5Random
+          - B6Random
     TRANSFORMS:
       RESIZE: 256
       FLIP: False
@@ -26,9 +37,12 @@ VALID:
   DATASET:
     NAME: JointsDataset
     CONTAINS:
-      RHD2D:
-        ROOT: data/RHD/cropped/evaluation/   
-        DATA_JSON_PATH: data/RHD/cropped/evaluation/cropped_anno.pickle
+      STB:
+        ROOT: data/STB/2dcrop
+        DATA_JSON_PATH: data/STB/labels
+        PICK:
+          - B1Counting
+          - B1Random
     TRANSFORMS:
       RESIZE: 256
       FLIP: False
@@ -49,7 +63,7 @@ MODEL:
   NETWORKS:
     Regression:
       TYPE: CPMWeaklyDirectRegression
-      PRETRAINED_WEIGHT_PATH: 'output/Mar_10_01_43_37_Weakly_direct_regression_train_RHD2D_valid_RHD2D/best/model/net_Regression.torch'      
+      PRETRAINED_WEIGHT_PATH: ''
       num_joints: 22
     DepthRegularizer:
       TYPE: depth_regularizer

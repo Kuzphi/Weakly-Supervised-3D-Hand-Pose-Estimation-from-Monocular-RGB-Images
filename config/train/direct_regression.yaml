@@ -1,11 +1,6 @@
 CURRENT_EPOCH: 0
 TRAIN:
   DEBUG: False
-  METRIC_ITEMS: # the metric that you wanna track during training
-    - loss
-    - dis
-    - PcKAcc
-
   DATASET:
     NAME: JointsDataset
     CONTAINS:
@@ -23,22 +18,24 @@ TRAIN:
           - B4Random
           - B5Random
           - B6Random
-
-    TRANSFORMS:
-      RESIZE: 256
-      FLIP: False
-      COLOR_NORISE: True
-    HEATMAP:
-      TYPE: Gaussian # Gaussian or Cauchy
-      SIGMA: 8 #Ground truth heatmap
+    REPROCESS:
+      TRANSFORMS:
+        RESIZE: 256
+        FLIP: False
+        COLOR_NORISE: True
+      HEATMAP:
+        TYPE: Gaussian # Gaussian or Cauchy
+        SIGMA: 8 #Ground truth heatmap
+      NUM_JOINTS: 22
     IS_TRAIN: True
-    BATCH_SIZE: 8
+    BATCH_SIZE: 6
     SHUFFLE: True
-    NUM_JOINTS: 22
+    
 
 VALID:
   DEBUG: False
   IS_VALID: True
+  NUM_JOINTS: 21
   DATASET:
     NAME: JointsDataset
     CONTAINS:
@@ -48,39 +45,37 @@ VALID:
         PICK:
           - B1Counting
           - B1Random
-    TRANSFORMS:
-      RESIZE: 256
-      FLIP: False
-      COLOR_NORISE: False
-    HEATMAP:
-      TYPE: Gaussian # Gaussian or Cauchy
-      SIGMA: 8 #Ground truth heatmap
+    REPROCESS:
+      TRANSFORMS:
+        RESIZE: 256
+        FLIP: False
+        COLOR_NORISE: False
+      HEATMAP:
+        TYPE: Gaussian # Gaussian or Cauchy
+        SIGMA: 8 #Ground truth heatmap
+      NUM_JOINTS: 22
     IS_TRAIN: False
-    BATCH_SIZE: 8
-    NUM_JOINTS: 22
-
+    BATCH_SIZE: 6
+    
+    
 DATA_DIR: ''
 END_EPOCH: 100
 
 LOG_DIR: ''
 MODEL:
-  NAME: Weakly_direct_regression_with_depth
+  NAME: Weakly_direct_regression
   NETWORKS:
     Regression:
       TYPE: CPMWeaklyDirectRegression
-      PRETRAINED_WEIGHT_PATH: /home/liangjic/Frame/output/Mar_13_17:37:40_Weakly_direct_regression_with_depth_train:RHD2D_valid:RHD2D/best/model/net_Regression.torch
-      # PRETRAINED_WEIGHT_PATH: 'pretrained_weight/cpmRHD.torch'
+      PRETRAINED_WEIGHT_PATH: pretrained_weight/cpmRHD.torch
+      # PRETRAINED_WEIGHT_PATH: 'output/Mar  7 21:58:35_train_Weakly_direct_regression_Combine2D(RHD2D)_valid_Combine2D(RHD2D)/best/model/net_Regression.torch'
+      # PRETRAINED_WEIGHT_PATH: 'Mar_13_04:52:55_direct_two_stream_train:RHD2D_valid:RHD2D/best/model/net_direct_two_stream.torch'
       num_joints: 22
-
-    DepthRegularizer:
-      TYPE: DepthRegularizer
-      PRETRAINED_WEIGHT_PATH: /home/liangjic/Frame/output/Mar_13_17:37:40_Weakly_direct_regression_with_depth_train:RHD2D_valid:RHD2D/best/model/net_DepthRegularizer.torch
 
   OPTIMIZERS:
     Regression:
       NETWORKS:
         - Regression
-        - DepthRegularizer
       TYPE: RMSprop
       PARAMETERS:
         lr: 2.5e-5
@@ -105,6 +100,7 @@ METRIC_ITEMS: # the metric that you wanna track during training
   - loss
   - dis2d
   - dis3d
+  - AUC_20_50
 MAIN_METRIC: dis3d
 
 OUTPUT_DIR: output/
