@@ -4,6 +4,6 @@
 *.pickle
 *.json
 *.png
-**/._*
+**/.*
 **/.DS_Store
 data/*
