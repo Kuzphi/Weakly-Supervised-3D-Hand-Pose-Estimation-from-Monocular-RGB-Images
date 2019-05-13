@@ -1,0 +1,113 @@
+CURRENT_EPOCH: 0
+TRAIN:
+  DEBUG: False
+  METRIC_ITEMS: # the metric that you wanna track during training
+    - loss
+    - dis
+    - PcKAcc
+
+  DATASET:
+    NAME: JointsDataset
+    CONTAINS:
+      STB:
+        ROOT: data/STB/2dcrop
+        DATA_JSON_PATH: data/STB/labels
+        PICK:
+          - B2Counting
+          - B3Counting
+          - B4Counting
+          - B5Counting
+          - B6Counting
+          - B2Random
+          - B3Random
+          - B4Random
+          - B5Random
+          - B6Random
+
+    TRANSFORMS:
+      RESIZE: 256
+      FLIP: False
+      COLOR_NORISE: True
+    HEATMAP:
+      TYPE: Gaussian # Gaussian or Cauchy
+      SIGMA: 8 #Ground truth heatmap
+    IS_TRAIN: True
+    BATCH_SIZE: 8
+    SHUFFLE: True
+    NUM_JOINTS: 22
+
+VALID:
+  DEBUG: False
+  IS_VALID: True
+  DATASET:
+    NAME: JointsDataset
+    CONTAINS:
+      STB:
+        ROOT: data/STB/2dcrop
+        DATA_JSON_PATH: data/STB/labels
+        PICK:
+          - B1Counting
+          - B1Random
+    TRANSFORMS:
+      RESIZE: 256
+      FLIP: False
+      COLOR_NORISE: False
+    HEATMAP:
+      TYPE: Gaussian # Gaussian or Cauchy
+      SIGMA: 8 #Ground truth heatmap
+    IS_TRAIN: False
+    BATCH_SIZE: 8
+    NUM_JOINTS: 22
+
+DATA_DIR: ''
+END_EPOCH: 100
+
+LOG_DIR: ''
+MODEL:
+  NAME: Weakly_direct_regression_with_depth
+  NETWORKS:
+    Regression:
+      TYPE: CPMWeaklyDirectRegression
+      PRETRAINED_WEIGHT_PATH: /home/liangjic/Frame/output/Mar_13_17:37:40_Weakly_direct_regression_with_depth_train:RHD2D_valid:RHD2D/best/model/net_Regression.torch
+      # PRETRAINED_WEIGHT_PATH: 'pretrained_weight/cpmRHD.torch'
+      num_joints: 22
+
+    DepthRegularizer:
+      TYPE: DepthRegularizer
+      PRETRAINED_WEIGHT_PATH: /home/liangjic/Frame/output/Mar_13_17:37:40_Weakly_direct_regression_with_depth_train:RHD2D_valid:RHD2D/best/model/net_DepthRegularizer.torch
+
+  OPTIMIZERS:
+    Regression:
+      NETWORKS:
+        - Regression
+        - DepthRegularizer
+      TYPE: RMSprop
+      PARAMETERS:
+        lr: 2.5e-5
+        momentum: 0
+        weight_decay: 0
+      SCHEDULER:
+        TYPE: StepLR
+        PARAMETERS:
+          gamma: 0.1
+          step_size: 30
+  GPUS:
+    - 0
+    - 1
+    - 2
+    - 3
+  STAGE: 3
+LOG:
+  PATH: output
+  MONITOR_ITEM:
+
+METRIC_ITEMS: # the metric that you wanna track during training
+  - loss
+  - dis2d
+  - dis3d
+MAIN_METRIC: dis3d
+
+OUTPUT_DIR: output/
+START_EPOCH: 0
+WORKERS: 6
+RESUME_TRAIN: 0

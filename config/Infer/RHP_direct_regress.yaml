@@ -1,0 +1,58 @@
+CURRENT_EPOCH: 0
+IS_VALID: True #validate or just inference
+DATASET:
+  NAME: JointsDataset
+  CONTAINS:
+    RHD:
+      ROOT: data/RHD/cropped/evaluation/   
+      DATA_JSON_PATH: data/RHD/cropped/evaluation/cropped_anno.pickle
+  REPROCESS:
+    TRANSFORMS:
+      RESIZE: 256
+      FLIP: False
+      COLOR_NORISE: False
+    HEATMAP:
+      TYPE: Gaussian # Gaussian or Cauchy
+      SIGMA: 8 #Ground truth heatmap
+    NUM_JOINTS: 22
+
+  IS_TRAIN: False
+  BATCH_SIZE: 20
+
+LOG_DIR: ''
+MODEL:
+  NAME: Weakly_direct_regression
+  NETWORKS:
+    Regression:
+      TYPE: CPMWeaklyDirectRegression
+      # PRETRAINED_WEIGHT_PATH: '/home/liangjic/cycada/cyclegan/checkpoints/direct_with_depth_2/best_Regression.torch'
+      PRETRAINED_WEIGHT_PATH: 'output/Mar_13_17:37:40_Weakly_direct_regression_with_depth_train:RHD2D_valid:RHD2D/best/model/net_Regression.torch'
+      num_joints: 22
+
+  OPTIMIZERS:
+    Regression:
+      NETWORKS:
+        - Regression
+      TYPE: RMSprop
+      PARAMETERS:
+        lr: 2.5e-5
+        momentum: 0
+        weight_decay: 0
+      SCHEDULER:
+        TYPE: StepLR
+        PARAMETERS:
+          gamma: 0.1
+          step_size: 30
+  GPUS: [0,1,2,3]
+  STAGE: 3
+
+METRIC_ITEMS: # the metric that you wanna track during training
+  - loss
+  - dis2d
+  - dis3d
+  - AUC_20_50
+OUTPUT_DIR: infer_result/
+START_EPOCH: 0
+WORKERS: 1
+DARW_RESULT: True
+DEBUG: False

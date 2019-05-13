@@ -1,0 +1,84 @@
+CURRENT_EPOCH: 0
+TRAIN:
+  DEBUG: False
+  DATASET:
+    NAME: JointsDataset
+    CONTAINS:
+      RHD2D:
+        ROOT: data/RHD/cropped/training/    
+        DATA_JSON_PATH: data/RHD/cropped/training/cropped_anno.pickle
+    TRANSFORMS:
+      RESIZE: 256
+      FLIP: False
+      COLOR_NORISE: True
+    HEATMAP:
+      TYPE: Gaussian # Gaussian or Cauchy
+      SIGMA: 8 #Ground truth heatmap
+    IS_TRAIN: True
+    BATCH_SIZE: 6
+    SHUFFLE: True
+    NUM_JOINTS: 22
+
+VALID:
+  DEBUG: False
+  IS_VALID: True
+  NUM_JOINTS: 21
+  DATASET:
+    NAME: JointsDataset
+    CONTAINS:
+      RHD2D:
+        ROOT: data/RHD/cropped/evaluation/   
+        DATA_JSON_PATH: data/RHD/cropped/evaluation/cropped_anno.pickle
+    TRANSFORMS:
+      RESIZE: 256
+      FLIP: False
+      COLOR_NORISE: False
+    HEATMAP:
+      TYPE: Gaussian # Gaussian or Cauchy
+      SIGMA: 8 #Ground truth heatmap
+    IS_TRAIN: False
+    BATCH_SIZE: 6
+    NUM_JOINTS: 22
+    
+DATA_DIR: ''
+END_EPOCH: 100
+
+LOG_DIR: ''
+MODEL:
+  NAME: depth_regularizer
+  NETWORKS:
+    Regression:
+      TYPE: CPMWeaklyDirectRegression
+      PRETRAINED_WEIGHT_PATH: 'output/Mar_10_01_43_37_Weakly_direct_regression_train_RHD2D_valid_RHD2D/best/model/net_Regression.torch'      
+      num_joints: 22
+    DepthRegularizer:
+      TYPE: depth_regularizer
+      PRETRAINED_WEIGHT_PATH:
+
+  OPTIMIZERS:
+    DepthRegularizer:
+      NETWORKS:
+        - DepthRegularizer
+      TYPE: Adam
+      PARAMETERS:
+        lr: 1.e-3
+  GPUS:
+    - 0
+    - 1
+    - 2
+    - 3
+  STAGE: 3
+LOG:
+  PATH: output
+  MONITOR_ITEM:
+
+METRIC_ITEMS: # the metric that you wanna track during training
+  - loss
+  # - dis2d
+  # - dis3d
+MAIN_METRIC: loss
+
+OUTPUT_DIR: output/
+START_EPOCH: 0
+WORKERS: 6
+RESUME_TRAIN: 0
