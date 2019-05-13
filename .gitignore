@@ -1,2 +1,9 @@
 *.pyc
-.*
+*.npy
+*.jpg
+*.pickle
+*.json
+*.png
+**/._*
+**/.DS_Store
+data/*
